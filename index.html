@@ -1,39 +1,50 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <head>
-</head>
-<body>
 	<script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
 	<script src="//d3js.org/topojson.v1.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+	<script src='https://api.mapbox.com/mapbox-gl-js/v0.23.0/mapbox-gl.js'></script>
+
+	<link href='https://api.mapbox.com/mapbox-gl-js/v0.23.0/mapbox-gl.css' rel='stylesheet' />
+
+	<style>
+		body { margin:0; padding:0; }
+		#map { position:absolute; top:0; bottom:0; width: 100vw; height: 100vh; }
+	</style>
+</head>
+
+<body>
+          
+	<div id='map'></div>
+
 	<script>
-		var width = $(window).width();
-		var height = $(window).height();
-		var scale = $(window).width() * 500;
-
-  		d3.select("body").append("svg")
-  			.attr("width", width)
-  			.attr("height", height);
-
-		d3.json("neighborhoods.geojson", function(error, data) {
-			if (error) return console.error(error);
-
-			var group = d3.select("svg").selectAll("g")
-				.data(data.features)
-				.enter()
-				.append("g");
-
-			var projection = d3.geo.mercator().scale(scale)
-				.center([-120,30])
-				.translate([width,height]);
-
-			var path = d3.geo.path().projection(projection);
-
-			var areas = group.append("path")
-				.attr("d", path)
-				.attr("fill", "black");
-
-			console.log(data);
+		mapboxgl.accessToken = 'pk.eyJ1IjoiaWZlYXJjb21waWxlcmVycm9ycyIsImEiOiIwMzQ1M2IyNDBjNjU5MWYyNjBkYjgxZmY3NzJhNjVjMyJ9.FA8vgFTawaP-zbU5cQU2fg';
+		var map = new mapboxgl.Map({
+			container: 'map',
+			style: 'mapbox://styles/mapbox/streets-v9',
+			center: [-121.85, 37.22],
+			zoom: 9.5
 		});
+
+		map.on('load', function() {
+			map.addSource('santa-clara', {
+				type: 'geojson',
+				data: './neighborhoods.geojson'
+			});
+
+			map.addLayer({
+				'id': 'route',
+				'type': 'fill',
+				'source': 'santa-clara',
+				'layout': {},
+				'paint': {
+					'fill-color': '#088',
+					'fill-opacity': 0.8,
+					'fill-outline-color': '#FFFFFF'
+			}
+		});
+	});
+
 	</script>
 </body>
